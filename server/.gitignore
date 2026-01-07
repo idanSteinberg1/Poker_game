@@ -1,0 +1,5 @@
+node_modules
+dist
+.env
+pokerclub.db
+pokerclub.db-journal
