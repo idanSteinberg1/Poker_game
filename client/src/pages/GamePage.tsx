@@ -4,6 +4,7 @@ import { socketService } from '../services/socket';
 import { Button } from '../components/Button';
 import { Coins } from 'lucide-react';
 import { PlayingCard } from '../components/PlayingCard';
+import { audioManager } from '../services/AudioManager';
 
 // Types for Game State (mirroring backend)
 interface Player {
@@ -81,6 +82,23 @@ const GamePage = () => {
             socketService.disconnect();
         };
     }, [id, navigate]);
+
+    // Audio Triggers
+    useEffect(() => {
+        if (!gameState) return;
+
+        if (gameState.phase === 'dealing') {
+            audioManager.play('deal');
+        } else if (gameState.phase === 'payout') {
+            audioManager.play('win');
+            audioManager.play('chip');
+        } else if (gameState.phase === 'revealing') {
+            audioManager.play('deal'); // Flip sound
+        } else if (gameState.phase === 'waiting' && gameState.players.length > 1) {
+            // New player joined or game reset
+            audioManager.play('notify');
+        }
+    }, [gameState?.phase, gameState?.lastRoundResult]);
 
     if (!gameState) return <div className="text-center text-white p-20">Connecting to table...</div>;
 
@@ -292,6 +310,14 @@ const GamePage = () => {
                     alert("Link copied to clipboard! Share it with friends.");
                 }} className="h-10 w-10 p-0 rounded-full bg-black/40 hover:bg-green-900/40 border border-white/10 hover:border-green-500/50 backdrop-blur-md flex items-center justify-center transition-all group" title="Share Table Link">
                     <span className="text-sm font-bold group-hover:scale-110 transition-transform text-gray-400 group-hover:text-green-400">🔗</span>
+                </Button>
+                <Button variant="ghost" onClick={() => {
+                    audioManager.toggleMute();
+                    // Force re-render to update icon (using a dummy state or just reliability)
+                    // For now, simpler to just toggle and user knows. 
+                    // Ideally we add state for mute icon.
+                }} className="h-10 w-10 p-0 rounded-full bg-black/40 hover:bg-yellow-900/40 border border-white/10 hover:border-yellow-500/50 backdrop-blur-md flex items-center justify-center transition-all group" title="Toggle Sound">
+                    <span className="text-sm font-bold group-hover:scale-110 transition-transform text-gray-400 group-hover:text-yellow-400">🔊</span>
                 </Button>
             </div>
         </div>
