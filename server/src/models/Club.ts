@@ -28,6 +28,10 @@ export const ClubModel = {
         return get<Club>('SELECT * FROM clubs WHERE code = ?', [code]);
     },
 
+    async findById(id: number): Promise<Club | undefined> {
+        return get<Club>('SELECT * FROM clubs WHERE id = ?', [id]);
+    },
+
     async addMember(clubId: number, userId: number, role: string = 'member'): Promise<void> {
         await run(
             'INSERT INTO club_members (club_id, user_id, role, balance) VALUES (?, ?, ?, ?)',

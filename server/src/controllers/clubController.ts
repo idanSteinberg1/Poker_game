@@ -67,3 +67,18 @@ export const getMyClubs = async (req: Request, res: Response) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+export const getClub = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const club = await ClubModel.findById(Number(id));
+        if (!club) {
+            res.status(404).json({ error: 'Club not found' });
+            return;
+        }
+        res.json(club);
+    } catch (error) {
+        console.error('Get club error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};

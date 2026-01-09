@@ -21,12 +21,26 @@ const ClubLobby = () => {
     const [tables, setTables] = useState<Table[]>([]);
     const [isCreateTableModalOpen, setCreateTableModalOpen] = useState(false);
 
+    const [club, setClub] = useState<{ name: string; code: string } | null>(null);
+
     // Create Table Form
     const { register, handleSubmit, reset } = useForm<{ name: string }>();
 
     useEffect(() => {
-        if (id) fetchTables();
+        if (id) {
+            fetchTables();
+            fetchClubDetails();
+        }
     }, [id]);
+
+    const fetchClubDetails = async () => {
+        try {
+            const { data } = await api.get(`/clubs/${id}`);
+            setClub(data);
+        } catch (error) {
+            console.error('Failed to fetch club details', error);
+        }
+    };
 
     const fetchTables = async () => {
         try {
@@ -48,14 +62,36 @@ const ClubLobby = () => {
         }
     };
 
+    const copyToClipboard = () => {
+        if (club?.code) {
+            navigator.clipboard.writeText(club.code);
+            alert(`Club code ${club.code} copied!`);
+        }
+    };
+
     return (
         <div className="p-8 max-w-7xl mx-auto">
             <header className="flex justify-between items-center mb-10">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" onClick={() => navigate('/dashboard')}>&larr; Back</Button>
-                    <h1 className="text-3xl font-bold text-white">
-                        Club Lobby
-                    </h1>
+                    <div>
+                        <h1 className="text-3xl font-bold text-white mb-2">
+                            {club?.name || 'Club Lobby'}
+                        </h1>
+                        {club && (
+                            <div className="flex items-center gap-2 bg-neutral-800/50 px-3 py-1 rounded-lg border border-white/10 w-fit">
+                                <span className="text-neutral-400 text-sm">Code:</span>
+                                <code className="text-yellow-400 font-mono font-bold tracking-wider">{club.code}</code>
+                                <button
+                                    onClick={copyToClipboard}
+                                    className="ml-2 hover:bg-white/10 p-1.5 rounded-md transition-colors group"
+                                    title="Copy Club Code"
+                                >
+                                    <span className="text-xs group-hover:text-white text-neutral-400">📋</span>
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <Button onClick={() => setCreateTableModalOpen(true)} className="gap-2">

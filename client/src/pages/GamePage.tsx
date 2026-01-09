@@ -36,6 +36,7 @@ const GamePage = () => {
     const navigate = useNavigate();
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [myUserId, setMyUserId] = useState<number | null>(null);
+    const [isMuted, setIsMuted] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -312,12 +313,12 @@ const GamePage = () => {
                     <span className="text-sm font-bold group-hover:scale-110 transition-transform text-gray-400 group-hover:text-green-400">🔗</span>
                 </Button>
                 <Button variant="ghost" onClick={() => {
-                    audioManager.toggleMute();
-                    // Force re-render to update icon (using a dummy state or just reliability)
-                    // For now, simpler to just toggle and user knows. 
-                    // Ideally we add state for mute icon.
-                }} className="h-10 w-10 p-0 rounded-full bg-black/40 hover:bg-yellow-900/40 border border-white/10 hover:border-yellow-500/50 backdrop-blur-md flex items-center justify-center transition-all group" title="Toggle Sound">
-                    <span className="text-sm font-bold group-hover:scale-110 transition-transform text-gray-400 group-hover:text-yellow-400">🔊</span>
+                    const muted = audioManager.toggleMute();
+                    setIsMuted(muted);
+                }} className="h-10 w-10 p-0 rounded-full bg-black/40 hover:bg-yellow-900/40 border border-white/10 hover:border-yellow-500/50 backdrop-blur-md flex items-center justify-center transition-all group" title={isMuted ? "Unmute" : "Mute"}>
+                    <span className="text-sm font-bold group-hover:scale-110 transition-transform text-gray-400 group-hover:text-yellow-400">
+                        {isMuted ? '🔇' : '🔊'}
+                    </span>
                 </Button>
             </div>
         </div>
