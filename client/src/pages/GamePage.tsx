@@ -128,7 +128,13 @@ const GamePage = () => {
             <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/black-felt.png')]"></div>
 
             {/* Main Table Structure */}
-            <div className="relative w-full max-w-[1400px] aspect-[2/1] md:aspect-[2.3/1] max-h-[85vh] flex items-center justify-center">
+            <div
+                className="relative w-full max-w-[1400px] aspect-[2/1] md:aspect-[2.3/1] max-h-[85vh] flex items-center justify-center catch-all-interactions"
+                onClick={() => {
+                    // Try to unlock audio on any interaction with the table
+                    audioManager.unlock();
+                }}
+            >
 
                 {/* Wood Border (Rim) */}
                 <div className="absolute inset-4 md:inset-10 rounded-[1000px] border-[24px] md:border-[40px] border-[#5d3a1a] shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_5px_20px_rgba(255,255,255,0.1),inset_0_-5px_20px_rgba(0,0,0,0.5)] z-0 bg-[#3d2611]">

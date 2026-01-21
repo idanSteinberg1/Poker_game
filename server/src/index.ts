@@ -5,6 +5,11 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import './db/index.js';
 import { setupSocket } from './socket/index.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -34,8 +39,14 @@ app.use('/api/tables', tableRoutes);
 
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-    res.send('PokerClub API is running');
+
+// Serve static files from the client dist directory
+const clientBuildPath = path.join(__dirname, '../../client/dist');
+app.use(express.static(clientBuildPath));
+
+// Handle SPA routing: serve index.html for any unknown route
+app.get('*', (req, res) => {
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
 });
 
 setupSocket(io);

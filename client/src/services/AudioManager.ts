@@ -1,6 +1,7 @@
 class AudioManager {
     private sounds: Record<string, HTMLAudioElement> = {};
     private muted: boolean = false;
+    private initialized: boolean = false;
 
     constructor() {
         this.loadSounds();
@@ -10,12 +11,12 @@ class AudioManager {
         // We will assume these files exist in public/sounds/
         // If they don't, it will just log a warning in console but won't crash
         const soundFiles: Record<string, string> = {
-            deal: '/sounds/card-flip.mp3',
-            chip: '/sounds/chips-stack.mp3',
-            win: '/sounds/win-sound.mp3',
-            fold: '/sounds/fold.mp3',
-            check: '/sounds/check.mp3',
-            notify: '/sounds/notification.mp3'
+            deal: '/sounds/deal.mp3',
+            chip: '/sounds/chip.mp3',
+            win: '/sounds/win.mp3',
+            notify: '/sounds/notify.mp3'
+            // fold: '/sounds/fold.mp3', // Missing
+            // check: '/sounds/check.mp3' // Missing
         };
 
         Object.entries(soundFiles).forEach(([key, path]) => {
@@ -23,6 +24,36 @@ class AudioManager {
             audio.volume = 0.5; // Default volume 50%
             this.sounds[key] = audio;
         });
+    }
+
+    public async unlock() {
+        if (this.initialized) return;
+
+        console.log("Audio unlock attempted...");
+
+        // Try to unlock all sounds by playing them muted for a split second
+        // This tells the browser we have user intent
+        const unlockPromises = Object.values(this.sounds).map(audio => {
+            return new Promise<void>((resolve) => {
+                const originalVolume = audio.volume;
+                audio.volume = 0;
+                audio.play()
+                    .then(() => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                        audio.volume = originalVolume;
+                        resolve();
+                    })
+                    .catch((err) => {
+                        console.warn("Audio unlock failed for one clip:", err);
+                        resolve(); // Resolve anyway
+                    });
+            });
+        });
+
+        await Promise.all(unlockPromises);
+        this.initialized = true;
+        console.log("Audio system unlocked!");
     }
 
     public play(soundName: string) {
@@ -33,8 +64,9 @@ class AudioManager {
             sound.currentTime = 0;
             sound.play().catch(err => {
                 // Browsers often block auto-play until user interaction
-                // We ignore this error to prevent console spam
-                if (err.name !== 'NotAllowedError') {
+                if (err.name === 'NotAllowedError') {
+                    console.error(`Audio blocked by browser policy! Application needs user interaction first. Sound: ${soundName}`);
+                } else {
                     console.warn(`Failed to play sound: ${soundName}`, err);
                 }
             });

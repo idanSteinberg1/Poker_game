@@ -107,7 +107,20 @@ const Dashboard = () => {
                             <div className="flex justify-between items-start mb-4">
                                 <div>
                                     <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">{club.name}</h3>
-                                    <span className="text-xs font-mono text-neutral-500 bg-neutral-900 px-2 py-1 rounded">Code: {club.code}</span>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span className="text-xs font-mono text-neutral-500 bg-neutral-900 px-2 py-1 rounded">Code: {club.code}</span>
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigator.clipboard.writeText(club.code);
+                                                alert(`Code ${club.code} copied!`);
+                                            }}
+                                            className="p-1 hover:bg-white/10 rounded transition-colors text-neutral-500 hover:text-white"
+                                            title="Copy Code"
+                                        >
+                                            📋
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className={`px-2 py-1 rounded text-xs font-bold uppercase ${club.role === 'manager' || club.role === 'superadmin' ? 'bg-purple-500/20 text-purple-400' : 'bg-green-500/20 text-green-400'}`}>
                                     {club.role}
